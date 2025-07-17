@@ -1,0 +1,269 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  MENTOR
+  ASSISTANT
+  STUDENT
+}
+
+enum PaidVia {
+  PAYME
+  CLICK
+  CASH
+}
+
+enum HomeworkSubStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+enum ExamAnswer {
+  variantA
+  variantB
+  variantC
+  variantD
+}
+
+model Users {
+  id                 Int                  @id @default(autoincrement())
+  phone              String
+  password           String
+  role               UserRole             @default(STUDENT)
+  fullName           String
+  image              String?
+  createdAt          DateTime             @default(now())
+  mentorProfile      MentorProfile[]
+  asignedCourse      AssignedCourse[]
+  purchasedCourse    PurchasedCourse[]
+  rating             Rating[]
+  lastActivity       LastActivity[]
+  lessonView         LessonView[]
+  homeworkSubmission HomeworkSubmission[]
+  examResult         ExamResult[]
+  question           Question[]
+  questionAnswer     QuestionAnswer[]
+  course Course[]
+}
+
+model MentorProfile {
+  id         Int      @id @default(autoincrement())
+  about      String
+  job        String
+  experience Int
+  telegram   String
+  instagram  String
+  linkedin   String
+  facebook   String
+  github     String
+  Users      Users    @relation(fields: [usersId], references: [id])
+  usersId    Int
+  course     Course[]
+}
+
+model CourseCategory {
+  id        Int      @id @default(autoincrement())
+  name      String
+  createdAt DateTime @default(now())
+  course    Course[]
+}
+
+model Course {
+  id               Int               @id @default(autoincrement())
+  name             String
+  about            String
+  price            Float
+  banner           String
+  introVideo       String?
+  level            String
+  published        Boolean?          @default(false)
+  CourseCategory   CourseCategory    @relation(fields: [courseCategoryId], references: [id])
+  courseCategoryId Int
+  MentorProfile    MentorProfile     @relation(fields: [mentorProfileId], references: [id])
+  mentorProfileId  Int
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+  assignedCourse   AssignedCourse[]
+  purchasedCourse  PurchasedCourse[]
+  rating           Rating[]
+  lastActivity     LastActivity[]
+  lessonModule     LessonModule[]
+  question         Question[]
+  Users            Users?            @relation(fields: [usersId], references: [id])
+  usersId          Int?
+}
+
+model AssignedCourse {
+  id        Int      @id @default(autoincrement())
+  Users     Users    @relation(fields: [usersId], references: [id])
+  usersId   Int
+  createdAt DateTime @default(now())
+  Course    Course?  @relation(fields: [courseId], references: [id])
+  courseId  Int?
+}
+
+model PurchasedCourse {
+  id          Int      @id @default(autoincrement())
+  Course      Course   @relation(fields: [courseId], references: [id])
+  courseId    Int
+  Users       Users    @relation(fields: [usersId], references: [id])
+  usersId     Int
+  amount      Float
+  paidVia     PaidVia
+  purchasedAt DateTime @default(now())
+}
+
+model Rating {
+  id        Int      @id @default(autoincrement())
+  rate      Int
+  comment   String
+  Course    Course   @relation(fields: [courseId], references: [id])
+  courseId  Int
+  Users     Users    @relation(fields: [usersId], references: [id])
+  usersId   Int
+  createdAt DateTime @default(now())
+}
+
+model LessonModule {
+  id           Int            @id @default(autoincrement())
+  name         String
+  Course       Course         @relation(fields: [courseId], references: [id])
+  courseId     Int
+  createdAt    DateTime       @default(now())
+  lastActivity LastActivity[]
+  lesson       Lesson[]
+  exam         Exam[]
+  examResult   ExamResult[]
+}
+
+model Lesson {
+  id             Int            @id @default(autoincrement())
+  name           String
+  about          String
+  video          String
+  LessonModule   LessonModule   @relation(fields: [lessonModuleId], references: [id])
+  lessonModuleId Int
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  lastActivity   LastActivity[]
+  lessonView     LessonView[]
+  lessonFile     LessonFile[]
+  homework       Homework[]
+}
+
+model LastActivity {
+  id             Int           @id @default(autoincrement())
+  Users          Users         @relation(fields: [usersId], references: [id])
+  usersId        Int
+  Course         Course        @relation(fields: [courseId], references: [id])
+  courseId       Int
+  LessonModule   LessonModule? @relation(fields: [lessonModuleId], references: [id])
+  lessonModuleId Int?
+  Lesson         Lesson        @relation(fields: [lessonId], references: [id])
+  lessonId       Int
+  url            String?
+  updatedAt      DateTime      @updatedAt
+}
+
+model LessonView {
+  id       Int     @id @default(autoincrement())
+  Lesson   Lesson  @relation(fields: [lessonId], references: [id])
+  lessonId Int
+  Users    Users   @relation(fields: [usersId], references: [id])
+  usersId  Int
+  view     Boolean
+}
+
+model LessonFile {
+  id        Int      @id @default(autoincrement())
+  file      String
+  note      String?
+  Lesson    Lesson   @relation(fields: [lessonId], references: [id])
+  lessonId  Int
+  createdAt DateTime @default(now())
+}
+
+model Homework {
+  id                 Int                  @id @default(autoincrement())
+  task               String
+  file               String?
+  Lesson             Lesson               @relation(fields: [lessonId], references: [id])
+  lessonId           Int
+  createdAt          DateTime             @default(now())
+  updatedAt          DateTime             @updatedAt
+  homeworkSubmission HomeworkSubmission[]
+}
+
+model HomeworkSubmission {
+  id         Int               @id @default(autoincrement())
+  text       String?
+  file       String
+  reason     String?
+  status     HomeworkSubStatus @default(PENDING)
+  Homework   Homework          @relation(fields: [homeworkId], references: [id])
+  homeworkId Int
+  Users      Users             @relation(fields: [usersId], references: [id])
+  usersId    Int
+  createdAt  DateTime          @default(now())
+  updatedAt  DateTime          @updatedAt
+}
+
+model Exam {
+  id             Int          @id @default(autoincrement())
+  question       String
+  variantA       String
+  variantB       String
+  variantC       String
+  variantD       String
+  answer         ExamAnswer
+  LessonModule   LessonModule @relation(fields: [lessonModuleId], references: [id])
+  lessonModuleId Int
+  createdAt      DateTime     @default(now())
+}
+
+model ExamResult {
+  id             Int          @id @default(autoincrement())
+  LessonModule   LessonModule @relation(fields: [lessonModuleId], references: [id])
+  lessonModuleId Int
+  Users          Users        @relation(fields: [usersId], references: [id])
+  usersId        Int
+  passed         Boolean
+  corrects       Int
+  wrongs         Int
+  createdAt      DateTime     @default(now())
+}
+
+model Question {
+  id             Int              @id @default(autoincrement())
+  Users          Users            @relation(fields: [usersId], references: [id])
+  usersId        Int
+  Course         Course           @relation(fields: [courseId], references: [id])
+  courseId       Int
+  text           String
+  file           String?
+  read           Boolean          @default(false)
+  readAt         DateTime?
+  createdAt      DateTime         @default(now())
+  updatedAt      DateTime         @updatedAt
+  questionAnswer QuestionAnswer[]
+}
+
+model QuestionAnswer {
+  id         Int      @id @default(autoincrement())
+  Question   Question @relation(fields: [questionId], references: [id])
+  questionId Int
+  Users      Users    @relation(fields: [usersId], references: [id])
+  usersId    Int
+  text       String
+  file       String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+}
