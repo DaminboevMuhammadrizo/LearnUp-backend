@@ -5,11 +5,13 @@ import { secToMills } from 'src/core/utils/time';
 import { SmsService } from 'src/common/service/sms.service';
 import { ICheckOtp, VerificationTypes } from 'src/common/types/verification';
 import { RedisService } from 'src/common/config/redis/redis.service';
+import { PrismaService } from 'src/Database/prisma.service';
 
 
 @Injectable()
 export class VerificationsService {
     constructor (
+        private readonly prisma: PrismaService,
         private readonly smsService: SmsService,
         private readonly redis: RedisService
     ) {}
@@ -33,7 +35,7 @@ export class VerificationsService {
     private getMessage(type: VerificationTypes, otp: string) {
         switch (type) {
             case VerificationTypes.REGISTER:
-                return `Tizim platformasidan ro'yhatdan otish uchun ${otp}. Bu kodni xech kimga aytmang !`
+                return `Bu Eskiz dan test`
             case VerificationTypes.RESET_PASSWORD:
                 return `Tizim platformasida parolni ozgartirish uchun ${otp}. Bu kodni xech kimga aytmang !`
             case VerificationTypes.RESET_PHONE:
@@ -43,7 +45,7 @@ export class VerificationsService {
 
 
     private async  throwIfUserExsists (phone: string) {
-        const user = await this.prisma.user.findUnique({where: {phone}})
+        const user = await this.prisma.users.findUnique({where: {phone}})
         if(user) {
             throw new BadRequestException({message: 'Phone alredy exsists !'})
         }
@@ -52,7 +54,7 @@ export class VerificationsService {
 
 
     private async throwIfUserNotExists (phone: string) {
-        const user = await this.prisma.user.findUnique({where: {phone}})
+        const user = await this.prisma.users.findUnique({where: {phone}})
         if(!user) {
             throw new BadRequestException({message: 'User not found !'})
         }
@@ -61,12 +63,13 @@ export class VerificationsService {
 
 
     async sendOtp(payload: SendOtpDto) {
+        console.log(payload)
         const key = this.getKey(payload.type, payload.phone)
         const session = await this.redis.get(key)
 
-        if(session) {
-            throw new BadRequestException({message: 'Code alredy sent to user !'})
-        }
+        // if(session) {
+        //     throw new BadRequestException({message: 'Code alredy sent to user !'})
+        // }
 
         switch (payload.type) {
             case VerificationTypes.REGISTER:
@@ -90,7 +93,7 @@ export class VerificationsService {
         if(!sesson) {
             throw new BadRequestException('Otp expired !')
         }
-        if(payload.otp !== JSON.parse(sesson).otp) {
+        if(payload.otp !== JSON.parse(sesson)) {
             throw new BadRequestException({message: 'Otp invalid !'})
         }
 
@@ -114,7 +117,7 @@ export class VerificationsService {
         if(!sesson) {
             throw new BadRequestException('Otp expired !')
         }
-        if(payload.otp !== JSON.parse(sesson).otp) {
+        if(payload.otp !== JSON.parse(sesson)) {
             throw new BadRequestException({message: 'Otp invalid !'})
         }
 

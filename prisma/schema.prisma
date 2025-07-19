@@ -35,7 +35,7 @@ enum ExamAnswer {
 
 model Users {
   id                 Int                  @id @default(autoincrement())
-  phone              String
+  phone              String               @unique
   password           String
   role               UserRole             @default(STUDENT)
   fullName           String
@@ -51,7 +51,7 @@ model Users {
   examResult         ExamResult[]
   question           Question[]
   questionAnswer     QuestionAnswer[]
-  course Course[]
+  course             Course[]
 }
 
 model MentorProfile {

@@ -1,4 +1,4 @@
-import { BadRequestException, HttpException, HttpStatus, Injectable } from "@nestjs/common";
+import { HttpException, HttpStatus, Injectable } from "@nestjs/common";
 import axios from "axios";
 import { SMSSendResponse } from "../types/sms";
 
@@ -18,6 +18,7 @@ export class SmsService {
                 email: this.USERNAME,
                 password: this.TOKEN
             })
+
             await this.$axsios.post<SMSSendResponse>('/message/sms/send', {
                 from: this.$from,
                 message,
@@ -26,16 +27,16 @@ export class SmsService {
             },
                 {
                     headers: {
-                        Authorization: 'Bearer' + data.data.token
+                        Authorization: 'Bearer ' + data.data.token
                     }
                 }
             )
             return true
         } catch (error) {
-            throw new HttpException(
-                'SMS Service: ' + error.resonse.statusText,
-                error.resonse.status || HttpStatus.BAD_REQUEST
-            )
+            console.log(error)
+            const status = error.response.status || HttpStatus.BAD_REQUEST;
+            const msg = error.response.statusText || error?.message || 'Unknown SMS error';
+            throw new HttpException(`SMS Service: ${msg}`, status);
         }
     }
 }

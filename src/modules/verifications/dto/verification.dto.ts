@@ -1,4 +1,5 @@
 import { IsEnum, IsMobilePhone, IsString } from "class-validator";
+import { VerificationTypes } from "src/common/types/verification";
 
 export class SendOtpDto {
 
