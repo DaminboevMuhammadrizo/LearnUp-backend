@@ -1,7 +1,16 @@
-import { IsNotEmpty, IsNumber } from "class-validator";
+import { IsMobilePhone, IsNotEmpty, IsNumber, IsString, MinLength } from "class-validator";
 
 export class CreateAdminDto {
-    @IsNumber()
+    @IsMobilePhone('uz-UZ')
     @IsNotEmpty()
-    user_id: number
+    phone: string
+
+    @IsString()
+    @IsNotEmpty()
+    fullName: string
+
+    @IsString()
+    @IsNotEmpty()
+    @MinLength(6)
+    password: string
 }

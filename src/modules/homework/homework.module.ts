@@ -3,6 +3,7 @@ import { HomeworkController } from './homework.controller';
 import { HomeworkService } from './homework.service';
 
 @Module({
+  imports: [],
   controllers: [HomeworkController],
   providers: [HomeworkService]
 })

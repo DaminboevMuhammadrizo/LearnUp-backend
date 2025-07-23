@@ -12,6 +12,10 @@ export class AllQueryDto {
     limit?: number
 
     @IsOptional()
+    @IsString()
+    search?: string
+
+    @IsOptional()
     @IsEnum(UserRole)
     role?: UserRole
 }

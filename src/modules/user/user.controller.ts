@@ -1,10 +1,13 @@
-import { Body, Controller, Get, Param, Post, Query } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Query } from '@nestjs/common';
 import { UserService } from './user.service';
 import { QueryMentorsDto } from './dto/query-mentors.dto';
 import { AllQueryDto } from './dto/all-query.dto';
 import { QueryByPhoneDto } from './dto/query-by-phone.dto';
 import { CreateAdminDto } from './dto/create-admin.dto';
 import { CreateMentorDto } from './dto/create-mentor.dto';
+import { UpdateMentorDto } from './dto/update-mentor';
+import { CreateAssistantDto } from './dto/create-assistant';
+import { UpdateAssistantDto } from './dto/update-assistant';
 
 @Controller('user')
 export class UserController {
@@ -19,7 +22,7 @@ export class UserController {
     
     @Get('single/mentor/:id')
     getSingleMentor (@Param('id') id: string) {
-        return this.userService.getSingleMentor(id)
+        return this.userService.getSingleMentor(+id)
     }
 
 
@@ -31,7 +34,7 @@ export class UserController {
 
     @Get('single/user/:id')
     getSingleUser (@Param('id') id: string) {
-        return this.userService.getSingleUser(id)
+        return this.userService.getSingleUser(+id)
     }
 
 
@@ -54,11 +57,26 @@ export class UserController {
 
 
     @Post('create/assistant')
-    createAssistant (@Body() payload: CreateMentorDto) {
+    createAssistant (@Body() payload: CreateAssistantDto) {
         return this.userService.createAssistant(payload)
     }
 
 
-    
+    @Put('update/mentor/:id')
+    updateMentor (@Body() payload: UpdateMentorDto, @Param('id') id: string) {
+        return this.userService.updateMentor(payload, +id)
+    }
+
+
+    @Put()
+    updateAssistant (@Body() payload: UpdateAssistantDto, @Param('id') id: string) {
+        return this.userService.updateAssistant(payload, +id)
+    }
+
+
+    @Delete('delete/:id')
+    delete (@Param('id') id: string) {
+        return this.userService.delete(+id)
+    }
 
 }

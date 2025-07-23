@@ -71,7 +71,7 @@ model MentorProfile {
 
 model CourseCategory {
   id        Int      @id @default(autoincrement())
-  name      String
+  name      String   @unique
   createdAt DateTime @default(now())
   course    Course[]
 }
@@ -97,17 +97,17 @@ model Course {
   lastActivity     LastActivity[]
   lessonModule     LessonModule[]
   question         Question[]
-  Users            Users?            @relation(fields: [usersId], references: [id])
-  usersId          Int?
+  Users            Users             @relation(fields: [usersId], references: [id])
+  usersId          Int
 }
 
 model AssignedCourse {
   id        Int      @id @default(autoincrement())
   Users     Users    @relation(fields: [usersId], references: [id])
   usersId   Int
-  createdAt DateTime @default(now())
   Course    Course?  @relation(fields: [courseId], references: [id])
   courseId  Int?
+  createdAt DateTime @default(now())
 }
 
 model PurchasedCourse {
@@ -124,7 +124,7 @@ model PurchasedCourse {
 model Rating {
   id        Int      @id @default(autoincrement())
   rate      Int
-  comment   String
+  comment   String?
   Course    Course   @relation(fields: [courseId], references: [id])
   courseId  Int
   Users     Users    @relation(fields: [usersId], references: [id])
@@ -171,6 +171,7 @@ model LastActivity {
   lessonId       Int
   url            String?
   updatedAt      DateTime      @updatedAt
+  @@unique([usersId, lessonId])
 }
 
 model LessonView {
@@ -180,6 +181,8 @@ model LessonView {
   Users    Users   @relation(fields: [usersId], references: [id])
   usersId  Int
   view     Boolean
+
+  @@unique([lessonId, usersId])
 }
 
 model LessonFile {

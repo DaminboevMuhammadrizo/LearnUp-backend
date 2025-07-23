@@ -1,4 +1,4 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import { BadRequestException, Injectable, NotFoundException } from '@nestjs/common';
 import { SendOtpDto, VerifyOtpDto } from './dto/verification.dto';
 import { generateOtp } from 'src/core/utils/random';
 import { secToMills } from 'src/core/utils/time';
@@ -35,11 +35,13 @@ export class VerificationsService {
     private getMessage(type: VerificationTypes, otp: string) {
         switch (type) {
             case VerificationTypes.REGISTER:
-                return `Bu Eskiz dan test`
+                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             case VerificationTypes.RESET_PASSWORD:
-                return `Tizim platformasida parolni ozgartirish uchun ${otp}. Bu kodni xech kimga aytmang !`
+                return `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             case VerificationTypes.RESET_PHONE:
-                return `Tizim platformasidan telefon raqamni ozgartirish uchn ${otp}. Bu kodni xech kimga bermang !`
+                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
+            default: 
+                throw new NotFoundException('salom')
         }
     }
 

@@ -1,7 +1,7 @@
 export enum VerificationTypes {
-    RESET_PASSWORD,
-    REGISTER,
-    RESET_PHONE
+    RESET_PASSWORD = 'RESET_PASSWORD',
+    REGISTER = 'REGISTER',
+    RESET_PHONE = 'RESET_PHONE'
 }
 
 

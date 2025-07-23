@@ -17,13 +17,13 @@ export class AuthController {
 
 
 
-    @Post()
+    @Post('login')
     login(@Body() payload: LoginDto) {
         return this.authService.login(payload)
     }
 
 
-    @Post()
+    @Post('reset-password')
     resetPassword (@Body() payload: ResetPasswordDto) {
         return this.authService.resetPassword(payload)
     }
