@@ -13,16 +13,17 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Deploy over SSH and run Docker Compose
+      - name: Deploy over SSH
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
+          port: 22
           script: |
             echo "📁 Creating project folder if it doesn't exist..."
-            mkdir -p /home/ubuntu/fixoo
-            cd /home/ubuntu/fixoo
+            mkdir -p ~/fixoo
+            cd ~/fixoo
 
             if [ ! -d "learning-managment-system/.git" ]; then
               echo "🚀 Cloning repository..."
@@ -33,14 +34,18 @@ jobs:
               git pull origin main
             fi
 
-            # 🔁 Go to the repo folder before using docker commands
-            cd /home/ubuntu/fixoo/learning-managment-system
+            cd ~/fixoo/learning-managment-system
+
+            echo "👨‍🔧 Giving Docker permissions..."
+            sudo usermod -aG docker $USER || true
 
             echo "🛑 Stopping containers..."
-            docker compose down
+            sudo docker compose down || true
 
             echo "🔨 Building containers..."
-            docker compose build
+            sudo docker compose build
 
             echo "🚀 Starting containers..."
-            docker compose up -d
+            sudo docker compose up -d
+
+            echo "✅ Deployment finished!"
