@@ -21,6 +21,7 @@ export class LessonController {
     return this.lessonService.getSingleLesson(id);
   }
 
+  
   @ApiOperation({ summary: 'Dars ko‘rishlar sonini olish' })
   @Get('views/:id')
   getLessonViews(@Param('id') id: string) {
@@ -29,7 +30,7 @@ export class LessonController {
 
   @ApiOperation({ summary: 'Darsni ko‘rish sifatida belgilash' })
   @Put('view/:id')
-  viewLesson(@Param('id') id: string, @Body() payload: ViewPutDto, @Req() req: Request) {
+  viewLesson(@Param('id') id: string, @Body() payload: ViewPutDto, @Req() req) {
     return this.lessonService.viewLesson(id, payload, req['user'].id);
   }
 
