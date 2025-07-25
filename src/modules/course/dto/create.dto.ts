@@ -1,37 +1,41 @@
 import { ApiProperty } from '@nestjs/swagger';
-import { Type } from 'class-transformer';
-import { IsEnum, IsNotEmpty, IsNumber, IsNumberString, IsString, MaxLength } from 'class-validator';
+import { IsString, IsNumber, IsEnum, IsNotEmpty, IsOptional, IsInt, } from 'class-validator';
 import { Level } from 'src/common/types/level';
 
 export class CreateCourseDto {
-  @ApiProperty()
+  @ApiProperty({example: 'John Doe'})
   @IsString()
   @IsNotEmpty()
-  name: string
+  name: string;
 
-  @ApiProperty()
+  @ApiProperty({example: 'This is a course about advanced programming techniques.'})
   @IsString()
   @IsNotEmpty()
-  about: string
+  about: string;
 
-  @ApiProperty()
+  @ApiProperty({example: 500})
   @IsNumber()
-  @Type(() => Number)
-  price: number
+  price: number;
 
-  @ApiProperty()
+  @ApiProperty({example: Level.BEGINNER})
   @IsEnum(Level)
-  level: Level
+  level: Level;
 
-  @ApiProperty()
-  @IsNumber()
-  categoryId: number
+  @ApiProperty({example: 1})
+  @IsInt()
+  categoryId: number;
+  
+  @ApiProperty({example: 1})
+  @IsInt()
+  mentorProfileId: number
 
-  @ApiProperty()
+  @ApiProperty({example: 'banner.jpg'})
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  banner: string
+  banner?: string
 
-  @ApiProperty()
+  @ApiProperty({example: 'intro.mp4'})
+  @IsOptional()
+  @IsString()
   introVideo?: string
 }

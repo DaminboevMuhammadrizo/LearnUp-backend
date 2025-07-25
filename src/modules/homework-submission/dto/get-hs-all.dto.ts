@@ -1,34 +1,16 @@
-import { IsEnum, IsInt, IsOptional, IsPositive } from "class-validator";
-import { HomeworkSubmissionsStatus } from "src/common/types/hs-status";
+import { IsOptional, IsString, IsNumberString } from 'class-validator';
 
 export class GetHomewrokSubmissionsAllQueryDto {
+  @IsOptional()
+  @IsNumberString()
+  lesson_id?: string;
 
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    offset: number
+  @IsOptional()
+  @IsNumberString()
+  homework_id?: string;
 
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    limit: number
+  @IsOptional()
+  @IsNumberString()
+  user_id?: string;
 
-    @IsOptional()
-    @IsEnum(HomeworkSubmissionsStatus)
-    status: HomeworkSubmissionsStatus
-
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    courseId: number
-
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    homewrokId: number
-
-    @IsOptional()
-    @IsInt()
-    @IsPositive()
-    userId: number
 }

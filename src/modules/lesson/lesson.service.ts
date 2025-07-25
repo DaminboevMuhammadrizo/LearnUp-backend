@@ -2,7 +2,9 @@ import { BadRequestException, Injectable, NotFoundException } from '@nestjs/comm
 import { PrismaService } from 'src/Database/prisma.service';
 import { ViewPutDto } from './dto/view-put.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
-import { UpdateLessonModuleDto } from '../lesson-module/dto/update.dto';
+import { UpdateeLessonDto } from './dto/update-lesson.dto';
+import * as fs from 'fs';
+import * as path from 'path';
 
 @Injectable()
 export class LessonService {
@@ -62,9 +64,8 @@ export class LessonService {
 
 
 
-    async viewLesson(lessonId: string, payload: ViewPutDto, usersId: string) {
+    async viewLesson(lessonId: string, payload: ViewPutDto, userId: number) {
         const lessonIdNumber = Number(lessonId);
-        const userId = Number(usersId);
 
         if (isNaN(lessonIdNumber)) {
             throw new BadRequestException({
@@ -73,12 +74,6 @@ export class LessonService {
             });
         }
 
-        if (isNaN(userId)) {
-            throw new BadRequestException({
-                success: false,
-                message: 'Invalid user ID!',
-            });
-        }
 
         const lesson = await this.prisma.lesson.findUnique({
             where: { id: lessonIdNumber },
@@ -189,7 +184,6 @@ export class LessonService {
 
 
     async createLesson(payload: CreateLessonDto) {
-
         const lessonModule = await this.prisma.lessonModule.findUnique({
             where: { id: payload.lessonModuleId },
         });
@@ -201,19 +195,25 @@ export class LessonService {
             });
         }
 
-        const data = await this.prisma.lesson.create({
-            data: payload
+        await this.prisma.lesson.create({
+            data: {
+                name: payload.name,
+                about: payload.about,
+                lessonModuleId: payload.lessonModuleId,
+                video: payload.video,
+            },
         });
 
         return {
             success: true,
-            message: 'Lesson successfully created!',
-            data: data,
+            message: 'Lesson success created!',
         };
     }
 
 
-    async updateLesson(id: string, payload: UpdateLessonModuleDto) {
+
+
+    async updateLesson(id: string, payload: UpdateeLessonDto, filename?: string) {
         const lessonId = Number(id);
 
         if (isNaN(lessonId)) {
@@ -234,6 +234,15 @@ export class LessonService {
             });
         }
 
+        if (filename && existingLesson.video) {
+            const oldVideoPath = path.join(process.cwd(), 'uploads', 'lessons', existingLesson.video);
+            if (fs.existsSync(oldVideoPath)) {
+                fs.unlinkSync(oldVideoPath);
+            }
+
+            payload.video = filename;
+        }
+
         const updatedLesson = await this.prisma.lesson.update({
             where: { id: lessonId },
             data: payload,
@@ -245,6 +254,7 @@ export class LessonService {
             data: updatedLesson,
         };
     }
+
 
 
     async deleteLesson(id: string) {
@@ -266,6 +276,13 @@ export class LessonService {
                 success: false,
                 message: 'Lesson not found!',
             });
+        }
+
+        if (existingLesson.video) {
+            const videoPath = path.join(process.cwd(), 'uploads', 'lessons', existingLesson.video);
+            if (fs.existsSync(videoPath)) {
+                fs.unlinkSync(videoPath);
+            }
         }
 
         await this.prisma.lesson.delete({

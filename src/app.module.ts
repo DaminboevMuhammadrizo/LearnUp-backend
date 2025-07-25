@@ -12,14 +12,20 @@ import { HomeworkSubmissionModule } from './modules/homework-submission/homework
 import { ExamModule } from './modules/exam/exam.module';
 import { ExamResultModule } from './modules/exam-result/exam-result.module';
 import { QuestionModule } from './modules/question/question.module';
-import { QuestionAnswerModule } from './modules/question-answer/question-answer.module';
 import { PrismaModule } from './Database/prisma.module';
 import { AuthModule } from './modules/auth/auth.module';
 import { CourseCategoryModule } from './modules/course-category/course-category.module';
 import { UserModule } from './modules/user/user.module';
+import { ProfileModule } from './modules/profile/profile.module';
+import { LessonFileModule } from './modules/lesson-file/lesson-file.module';
+import { ContactModule } from './modules/contact/contact.module';
+import { FilesModule } from './modules/files/files.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
-  imports: [ 
+  imports: [ConfigModule.forRoot({
+      isGlobal: true,
+    }), 
     AuthModule,
     UserModule,
     CourseCategoryModule,
@@ -36,8 +42,11 @@ import { UserModule } from './modules/user/user.module';
     ExamModule, 
     ExamResultModule, 
     QuestionModule, 
-    QuestionAnswerModule, 
-    PrismaModule
+    PrismaModule, 
+    ProfileModule, 
+    LessonFileModule, 
+    ContactModule, 
+    FilesModule,
   ]
 })
 export class AppModule {}

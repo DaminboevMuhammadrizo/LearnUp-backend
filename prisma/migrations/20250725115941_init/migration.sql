@@ -62,7 +62,7 @@ CREATE TABLE "Course" (
     "mentorProfileId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
-    "usersId" INTEGER,
+    "usersId" INTEGER NOT NULL,
 
     CONSTRAINT "Course_pkey" PRIMARY KEY ("id")
 );
@@ -71,8 +71,8 @@ CREATE TABLE "Course" (
 CREATE TABLE "AssignedCourse" (
     "id" SERIAL NOT NULL,
     "usersId" INTEGER NOT NULL,
-    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "courseId" INTEGER,
+    "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
 
     CONSTRAINT "AssignedCourse_pkey" PRIMARY KEY ("id")
 );
@@ -93,7 +93,7 @@ CREATE TABLE "PurchasedCourse" (
 CREATE TABLE "Rating" (
     "id" SERIAL NOT NULL,
     "rate" INTEGER NOT NULL,
-    "comment" TEXT NOT NULL,
+    "comment" TEXT,
     "courseId" INTEGER NOT NULL,
     "usersId" INTEGER NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
@@ -241,6 +241,18 @@ CREATE TABLE "QuestionAnswer" (
     CONSTRAINT "QuestionAnswer_pkey" PRIMARY KEY ("id")
 );
 
+-- CreateIndex
+CREATE UNIQUE INDEX "Users_phone_key" ON "Users"("phone");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "CourseCategory_name_key" ON "CourseCategory"("name");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LastActivity_usersId_lessonId_key" ON "LastActivity"("usersId", "lessonId");
+
+-- CreateIndex
+CREATE UNIQUE INDEX "LessonView_lessonId_usersId_key" ON "LessonView"("lessonId", "usersId");
+
 -- AddForeignKey
 ALTER TABLE "MentorProfile" ADD CONSTRAINT "MentorProfile_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
@@ -251,7 +263,7 @@ ALTER TABLE "Course" ADD CONSTRAINT "Course_courseCategoryId_fkey" FOREIGN KEY (
 ALTER TABLE "Course" ADD CONSTRAINT "Course_mentorProfileId_fkey" FOREIGN KEY ("mentorProfileId") REFERENCES "MentorProfile"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users"("id") ON DELETE SET NULL ON UPDATE CASCADE;
+ALTER TABLE "Course" ADD CONSTRAINT "Course_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "AssignedCourse" ADD CONSTRAINT "AssignedCourse_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
