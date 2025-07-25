@@ -20,24 +20,27 @@ jobs:
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            echo "Creating project folder if it doesn't exist!"
+            echo "📁 Creating project folder if it doesn't exist..."
             mkdir -p /home/ubuntu/fixoo
             cd /home/ubuntu/fixoo
 
-            if [ ! -d "fixoo-backend/.git" ]; then
-              echo "Cloning repository!" 
+            if [ ! -d "learning-managment-system/.git" ]; then
+              echo "🚀 Cloning repository..."
               git clone https://github.com/DaminboevM/learning-managment-system.git
             else
-              echo "Pulling latest changes!"
-              cd learning-managment-system    
-              git pull origin main  
+              echo "📦 Pulling latest changes..."
+              cd learning-managment-system
+              git pull origin main
             fi
-  
-            echo "Stopping containers"
+
+            # 🔁 Go to the repo folder before using docker commands
+            cd /home/ubuntu/fixoo/learning-managment-system
+
+            echo "🛑 Stopping containers..."
             docker compose down
 
-            echo "Building containers"
-            docker compose build 
+            echo "🔨 Building containers..."
+            docker compose build
 
-            echo "Running containers"
+            echo "🚀 Starting containers..."
             docker compose up -d
