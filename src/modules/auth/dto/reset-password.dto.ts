@@ -3,9 +3,8 @@ import { IsMobilePhone, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class ResetPasswordDto {
 
-    @ApiProperty({example: '+998901234567',})
-    @IsMobilePhone()
-    @IsNotEmpty()
+    @ApiProperty({example: '+998335242981',})
+    @IsString()
     phone: string
 
     @ApiProperty({example: 123456})

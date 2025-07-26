@@ -1,4 +1,4 @@
-import { Body, Controller, Delete, Get, Param, Post, Put, Req, UploadedFile, UseInterceptors } from '@nestjs/common';
+import { Body, Controller, Delete, Get, Param, Post, Put, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
 import { LessonService } from './lesson.service';
 import { ViewPutDto } from './dto/view-put.dto';
 import { CreateLessonDto } from './dto/create-lesson.dto';
@@ -8,38 +8,57 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { Request } from 'express';
-import { ApiTags, ApiOperation, ApiConsumes, ApiBody } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiConsumes, ApiBody, ApiBearerAuth } from '@nestjs/swagger';
+import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
+import { RolesGuard } from 'src/core/guards/roles.guard';
+import { Roles } from 'src/core/decorators/roles';
+import { UserRole } from 'src/common/types/userRole';
 
 @ApiTags('Lessons')
 @Controller('lesson')
 export class LessonController {
-  constructor(private readonly lessonService: LessonService) {}
+  constructor(private readonly lessonService: LessonService) { }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Bitta darsni olish' })
   @Get('single/:id')
   getSingleLesson(@Param('id') id: string) {
     return this.lessonService.getSingleLesson(id);
   }
 
-  
+
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MENTOR, UserRole.STUDENT)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Dars ko‘rishlar sonini olish' })
   @Get('views/:id')
   getLessonViews(@Param('id') id: string) {
     return this.lessonService.getLessonViews(id);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.STUDENT)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Darsni ko‘rish sifatida belgilash' })
   @Put('view/:id')
   viewLesson(@Param('id') id: string, @Body() payload: ViewPutDto, @Req() req) {
     return this.lessonService.viewLesson(id, payload, req['user'].id);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MENTOR, UserRole.STUDENT)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Darsning to‘liq tafsilotlarini olish' })
   @Get('detail/:lessonId')
   getLessonDetail(@Param('lessonId') lessonId: string) {
     return this.lessonService.getLessonDetail(lessonId);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MENTOR)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Yangi dars yaratish (video bilan)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -77,10 +96,13 @@ export class LessonController {
       },
     }),
   )
-  async createLesson(@Body() payload: CreateLessonDto, @UploadedFile() video: Express.Multer.File) {
+  createLesson(@Body() payload: CreateLessonDto, @UploadedFile() video: Express.Multer.File) {
     return this.lessonService.createLesson({ ...payload, video: video?.filename });
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MENTOR)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Darsni yangilash (video bilan)' })
   @ApiConsumes('multipart/form-data')
   @ApiBody({
@@ -125,6 +147,9 @@ export class LessonController {
     return this.lessonService.updateLesson(id, payload, video?.filename);
   }
 
+  @UseGuards(AuthGuard, RolesGuard)
+  @Roles(UserRole.ADMIN, UserRole.MENTOR)
+  @ApiBearerAuth()
   @ApiOperation({ summary: 'Darsni o‘chirish' })
   @Delete('delete/:id')
   deleteLesson(@Param('id') id: string) {

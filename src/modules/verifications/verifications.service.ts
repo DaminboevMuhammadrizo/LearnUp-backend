@@ -7,7 +7,6 @@ import { ICheckOtp, VerificationTypes } from 'src/common/types/verification';
 import { RedisService } from 'src/common/config/redis/redis.service';
 import { PrismaService } from 'src/Database/prisma.service';
 
-
 @Injectable()
 export class VerificationsService {
     constructor (
@@ -15,7 +14,6 @@ export class VerificationsService {
         private readonly smsService: SmsService,
         private readonly redis: RedisService
     ) {}
-
 
     public getKey (type: VerificationTypes, phone: string, confirmation?: boolean) {
         const storeKeys: Record<VerificationTypes, string> = {
@@ -31,51 +29,61 @@ export class VerificationsService {
         return key
     }
 
-
     private getMessage(type: VerificationTypes, otp: string) {
         switch (type) {
             case VerificationTypes.REGISTER:
-                return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
+                return `Fixoo platformasida ro'yxatdan o'tish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             case VerificationTypes.RESET_PASSWORD:
                 return `Fixoo platformasida parolingizni tiklash uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             case VerificationTypes.RESET_PHONE:
                 return `Fixoo platformasida telefoningizni o'zgartirish uchun tasdiqlash kodi: ${otp}. Kodni hech kimga bermang!`;
             default: 
-                throw new NotFoundException('salom')
+                throw new NotFoundException('Noto\'g\'ri tasdiqlash turi')
         }
     }
 
-
-    private async  throwIfUserExsists (phone: string) {
+    private async throwIfUserExists (phone: string) {
         const user = await this.prisma.users.findUnique({where: {phone}})
         if(user) {
-            throw new BadRequestException({message: 'Phone alredy exsists !'})
+            throw new BadRequestException('Bu telefon raqam allaqachon ro\'yxatdan o\'tgan!')
         }
         return user
     }
-
 
     private async throwIfUserNotExists (phone: string) {
         const user = await this.prisma.users.findUnique({where: {phone}})
         if(!user) {
-            throw new BadRequestException({message: 'User not found !'})
+            throw new BadRequestException('Foydalanuvchi topilmadi!')
         }
         return user
     }
 
-
     async sendOtp(payload: SendOtpDto) {
-        console.log(payload)
+        // Payload'ni tekshirish
+        if (!payload) {
+            throw new BadRequestException('Ma\'lumot yuborilmagan!');
+        }
+
+        if (!payload.type) {
+            throw new BadRequestException('Tasdiqlash turi ko\'rsatilmagan!');
+        }
+
+        if (!payload.phone) {
+            throw new BadRequestException('Telefon raqami ko\'rsatilmagan!');
+        }
+
+        console.log('Received payload:', payload);
+        
         const key = this.getKey(payload.type, payload.phone)
         const session = await this.redis.get(key)
 
-        // if(session) {
-        //     throw new BadRequestException({message: 'Code alredy sent to user !'})
-        // }
+        if(session) {
+            throw new BadRequestException('Kod allaqachon yuborilgan, biroz kuting!')
+        }
 
         switch (payload.type) {
             case VerificationTypes.REGISTER:
-                await this.throwIfUserExsists(payload.phone)
+                await this.throwIfUserExists(payload.phone)
                 break
             case VerificationTypes.RESET_PASSWORD:
                 await this.throwIfUserNotExists(payload.phone)
@@ -83,20 +91,40 @@ export class VerificationsService {
             case VerificationTypes.RESET_PHONE:
                 await this.throwIfUserNotExists(payload.phone)
                 break
+            default:
+                throw new BadRequestException('Noto\'g\'ri tasdiqlash turi!')
         }
+
         const otp = generateOtp()
         await this.redis.set(key, JSON.stringify(otp), secToMills(120))
-        await this.smsService.sendSMS(this.getMessage(payload.type, otp), payload.phone)
-        return {message: 'Confirm code sent !'}
+        
+        try {
+            await this.smsService.sendSMS(this.getMessage(payload.type, otp), payload.phone)
+        } catch (error) {
+            console.error('SMS yuborishda xatolik:', error);
+            // SMS yuborilmasa ham, OTP Redis'da saqlanadi (test uchun)
+        }
+
+        return {
+            success: true,
+            message: 'Tasdiqlash kodi yuborildi!',
+            // Development uchun OTP'ni ko'rsatish (production'da olib tashlang)
+            ...(process.env.NODE_ENV === 'development' && { otp })
+        }
     }
 
     async verifyOtp (payload: VerifyOtpDto) {
-        const sesson = await this.redis.get(this.getKey(payload.type, payload.phone))
-        if(!sesson) {
-            throw new BadRequestException('Otp expired !')
+        if (!payload) {
+            throw new BadRequestException('Ma\'lumot yuborilmagan!');
         }
-        if(payload.otp !== JSON.parse(sesson)) {
-            throw new BadRequestException({message: 'Otp invalid !'})
+
+        const session = await this.redis.get(this.getKey(payload.type, payload.phone))
+        if(!session) {
+            throw new BadRequestException('Tasdiqlash kodi muddati o\'tgan yoki topilmadi!')
+        }
+        
+        if(payload.otp !== JSON.parse(session)) {
+            throw new BadRequestException('Tasdiqlash kodi noto\'g\'ri!')
         }
 
         await this.redis.del(this.getKey(payload.type, payload.phone))
@@ -108,24 +136,20 @@ export class VerificationsService {
 
         return {
             success: true,
-            message: 'Verified'
+            message: 'Tasdiqlash muvaffaqiyatli bajarildi'
         }
     }
-
-
 
     public async ChekConfirmOtp (payload: ICheckOtp) {
-        const sesson = await this.redis.get(this.getKey(payload.type, payload.phone))
-        if(!sesson) {
-            throw new BadRequestException('Otp expired !')
+        const session = await this.redis.get(this.getKey(payload.type, payload.phone, true))
+        if(!session) {
+            throw new BadRequestException('Tasdiqlash muddati o\'tgan!')
         }
-        if(payload.otp !== JSON.parse(sesson)) {
-            throw new BadRequestException({message: 'Otp invalid !'})
+        if(payload.otp !== JSON.parse(session)) {
+            throw new BadRequestException('Tasdiqlash kodi noto\'g\'ri!')
         }
 
-        await this.redis.del(this.getKey(payload.type, payload.phone))
+        await this.redis.del(this.getKey(payload.type, payload.phone, true))
         return true
     }
-
-
 }

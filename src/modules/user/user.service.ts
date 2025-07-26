@@ -61,6 +61,11 @@ export class UserService {
         }
         payload.password = await hashPassword(payload.password)
         await this.prisma.users.create({ data: { ...payload, role: UserRole.ADMIN } })
+
+        return {
+            success: true,
+            message: 'Admin success crated !'
+        }
     }
 
 
@@ -97,6 +102,12 @@ export class UserService {
     async createAssistant(payload: CreateAssistantDto) {
         if (await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
             throw new ConflictException('Phone alredy exsists !')
+        }
+        if(!await this.prisma.course.findUnique({ where: {id: payload.courseId}})) {
+            throw new NotFoundException({
+                success: false,
+                message: 'course not found !'
+            })
         }
 
         await this.prisma.users.create({

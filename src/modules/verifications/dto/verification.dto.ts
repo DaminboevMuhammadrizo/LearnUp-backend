@@ -1,22 +1,37 @@
-import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsMobilePhone, IsString } from "class-validator";
+import { ApiConsumes, ApiProperty } from "@nestjs/swagger";
+import { IsEnum, IsString, IsNotEmpty } from "class-validator";
 import { VerificationTypes } from "src/common/types/verification";
 
 export class SendOtpDto {
+    @ApiProperty({
+        description: 'Tasdiqlash turi',
+        enum: VerificationTypes,
+        enumName: 'VerificationTypes',
+        example: VerificationTypes.REGISTER
+    })
+    @IsEnum(VerificationTypes, {
+        message: 'Type must be one of: REGISTER, RESET_PASSWORD, RESET_PHONE'
+    })
+    type: VerificationTypes;
 
-    @ApiProperty({example: VerificationTypes.REGISTER})
-    @IsEnum(VerificationTypes)
-    type: VerificationTypes
-
-    @ApiProperty({example: '+9981234567'})
-    @IsMobilePhone('uz-UZ')
+    @ApiProperty({
+        description: 'Telefon raqami',
+        example: '+998901234567',
+        pattern: '^\\+998[0-9]{9}$'
+    })
     @IsString()
-    phone: string
+    @IsNotEmpty()
+    phone: string;
 }
 
 export class VerifyOtpDto extends SendOtpDto {
-    
-    @ApiProperty({example: 123456})
+    @ApiProperty({
+        description: 'SMS orqali kelgan 6 xonali kod',
+        example: '123456',
+        minLength: 6,
+        maxLength: 6
+    })
     @IsString()
-    otp: string
+    @IsNotEmpty()
+    otp: string;
 }

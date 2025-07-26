@@ -1,25 +1,28 @@
 import { Injectable } from '@nestjs/common';
 import { ContactDto } from './dto/contact-dto';
 import { ClientProxy, ClientProxyFactory, Transport } from '@nestjs/microservices';
+import { lastValueFrom } from 'rxjs';
 
 @Injectable()
 export class ContactService {
-    private client: ClientProxy
+    private client: ClientProxy;
+
     constructor() {
         this.client = ClientProxyFactory.create({
             transport: Transport.RMQ,
             options: {
                 urls: ['amqp://muhammadrizo:123456@192.168.32.110:5672'],
-                queue: 'user',
+                queue: 'contact',
                 queueOptions: {
-                    durable: false
-                }
-            }
-        })
+                    durable: false,
+                },
+            },
+        });
     }
-
 
     async contact(payload: ContactDto) {
-        return this.client.send('contact', payload)
+        const result$ = this.client.send('contact', payload);
+        return lastValueFrom(result$);
     }
 }
+    

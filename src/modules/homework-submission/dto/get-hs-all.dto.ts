@@ -1,16 +1,19 @@
-import { IsOptional, IsString, IsNumberString } from 'class-validator';
+import { IsOptional, IsNumberString, IsInt, IsPositive } from 'class-validator';
 
 export class GetHomewrokSubmissionsAllQueryDto {
   @IsOptional()
-  @IsNumberString()
-  lesson_id?: string;
+  @IsInt()
+  @IsPositive()
+  lesson_id?: number;
 
   @IsOptional()
-  @IsNumberString()
-  homework_id?: string;
+  @IsInt()
+  @IsPositive()
+  homework_id?: number;
 
   @IsOptional()
-  @IsNumberString()
-  user_id?: string;
+  @IsInt()
+  @IsPositive()
+  user_id?: number;
 
 }

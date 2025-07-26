@@ -4,7 +4,7 @@ import { IsMobilePhone, IsNotEmpty, IsNumber, IsString, MinLength } from "class-
 export class CreateAssistantDto {
 
     @ApiProperty({example: '+998901234567'})
-    @IsMobilePhone('uz-UZ')
+    @IsString()
     @IsNotEmpty()
     phone: string
 

@@ -9,6 +9,7 @@ import { ApiTags, ApiOperation } from '@nestjs/swagger';
 export class RatingController {
     constructor(private readonly ratingService: RatingService) {}
 
+    
     @ApiOperation({ summary: 'Barcha reytinglarni olish' })
     @Get('all')
     getAll() {

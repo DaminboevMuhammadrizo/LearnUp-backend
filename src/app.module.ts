@@ -21,6 +21,7 @@ import { LessonFileModule } from './modules/lesson-file/lesson-file.module';
 import { ContactModule } from './modules/contact/contact.module';
 import { FilesModule } from './modules/files/files.module';
 import { ConfigModule } from '@nestjs/config';
+import { CourseModule } from './modules/course/course.module';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -28,19 +29,22 @@ import { ConfigModule } from '@nestjs/config';
     }), 
     AuthModule,
     UserModule,
+    ProfileModule,
+    CourseModule, 
     CourseCategoryModule,
     AssignedCourseModule, 
     PruchasedCourseModule, 
-    RatingModule, 
+    RatingModule,
     LessonModuleModule, 
     LessonModule, 
     VerificationsModule, 
+    HomeworkModule,
     RedisModule, 
     LastActivityModule, 
     HomeworkModule, 
     HomeworkSubmissionModule, 
     ExamModule, 
-    ExamResultModule, 
+    ExamResultModule,
     QuestionModule, 
     PrismaModule, 
     ProfileModule, 
