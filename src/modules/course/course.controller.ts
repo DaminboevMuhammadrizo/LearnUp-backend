@@ -117,21 +117,19 @@ export class CourseController {
         schema: {
             type: 'object',
             properties: {
-                title: { type: 'string' },
-                description: { type: 'string' },
+                name: { type: 'string' },
+                about: { type: 'string' },
                 price: { type: 'number' },
-                level: { type: 'string' },
-                banner: {
-                    type: 'string',
-                    format: 'binary',
-                },
-                introVideo: {
-                    type: 'string',
-                    format: 'binary',
-                },
+                level: { type: 'string', enum: ['BEGINNER', 'INTERMEDIATE', 'ADVANCED'] },
+                categoryId: { type: 'integer' },
+                mentorProfileId: { type: 'integer' },
+                banner: { type: 'string', format: 'binary' },
+                introVideo: { type: 'string', format: 'binary' },
             },
+            required: ['name', 'about', 'price', 'level', 'categoryId', 'mentorProfileId', 'banner'],
         },
     })
+
     @Post('create')
     @UseInterceptors(
         FileFieldsInterceptor(
@@ -163,7 +161,7 @@ export class CourseController {
                     cb(null, true);
                 },
                 limits: {
-                    fileSize: 1000 * 1024 * 1024, // ~1GB
+                    fileSize: 100 * 1024 * 1024, // ~1GB
                 },
             },
         ),
