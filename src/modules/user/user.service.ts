@@ -41,7 +41,7 @@ export class UserService {
 
         query.role && (where['role'] = query.role)
         query.search && (where['fullName'] = query.search)
-        return this.prisma.users.findMany({ where, skip, take })
+        return await this.prisma.users.findMany({ where, skip, take })
     }
 
 

@@ -3,12 +3,12 @@ import { IsMobilePhone, IsNotEmpty, IsString } from "class-validator";
 
 export class LoginDto {
 
-    @ApiProperty({example: '+998901234567'})
+    @ApiProperty({example: '+998975661099'})
     @IsMobilePhone('uz-UZ')
     @IsNotEmpty()
     phone: string
 
-    @ApiProperty({example: 'password123'})
+    @ApiProperty({example: '12345678'})
     @IsString()
     @IsNotEmpty()
     password: string

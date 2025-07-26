@@ -17,7 +17,7 @@ export class CreateCourseDto {
   @IsNumber()
   price: number;
 
-  @ApiProperty({example: Level.BEGINNER})
+  @ApiProperty({example: Level.BEGINNER, enum: Level})
   @IsEnum(Level)
   level: Level;
 

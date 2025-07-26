@@ -22,6 +22,7 @@ import { ContactModule } from './modules/contact/contact.module';
 import { FilesModule } from './modules/files/files.module';
 import { ConfigModule } from '@nestjs/config';
 import { CourseModule } from './modules/course/course.module';
+import { SeederService } from './seeders/seeders';
 
 @Module({
   imports: [ConfigModule.forRoot({
@@ -51,6 +52,7 @@ import { CourseModule } from './modules/course/course.module';
     LessonFileModule, 
     ContactModule, 
     FilesModule,
-  ]
+  ],
+  providers: [SeederService]
 })
 export class AppModule {}
