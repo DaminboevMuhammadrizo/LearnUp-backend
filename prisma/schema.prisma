@@ -87,7 +87,7 @@ model Course {
   introVideo       String?
   level            String
   published        Boolean?          @default(false)
-  CourseCategory   CourseCategory    @relation(fields: [courseCategoryId], references: [id])
+  CourseCategory   CourseCategory    @relation(fields: [courseCategoryId], references: [id], onDelete: Cascade)
   courseCategoryId Int
   MentorProfile    MentorProfile     @relation(fields: [mentorProfileId], references: [id])
   mentorProfileId  Int

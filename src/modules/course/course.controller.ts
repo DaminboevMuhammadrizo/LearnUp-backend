@@ -18,6 +18,7 @@ import { UserRole } from 'src/common/types/userRole';
 import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/core/guards/roles.guard';
 import { Roles } from 'src/core/decorators/roles';
+import { GetTopCourseQueryDto } from './dto/GetTopCourseQueryDto';
 
 @ApiTags('Courses')
 @Controller('course')
@@ -26,14 +27,14 @@ export class CourseController {
 
 
     @ApiOperation({ summary: 'Kurslar roʻyxatini olish (filter bilan)' })
-    @Get()
+    @Get('all')
     getAll(@Query() query: GetQueryDto) {
         return this.courseService.getAll(query);
     }
 
 
     @ApiOperation({ summary: 'Kursni ID orqali olish' })
-    @Get(':id')
+    @Get('getOne/:id')
     getOne(@Param('id') id: string) {
         return this.courseService.getOne(id);
     }
@@ -51,7 +52,7 @@ export class CourseController {
     @Roles(UserRole.ADMIN)
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Barcha kurslarni olish (admin uchun)' })
-    @Get('all')
+    @Get('admin/all')
     getAllCourse(@Query() query: GetAllCourseDto) {
         return this.courseService.getAllCourses(query);
     }
@@ -107,6 +108,12 @@ export class CourseController {
         return this.courseService.unassignAssistant(payload);
     }
 
+    @ApiOperation({ summary: 'Eng kop korilgan 4 ta kurs' })
+    @Get('top/:categoryId')
+    getTopCourses(@Param('categoryId') categoryId: string) {
+        return this.courseService.getTopCourses(categoryId);
+    }
+
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN, UserRole.MENTOR)
     @ApiBearerAuth()
@@ -146,18 +153,50 @@ export class CourseController {
                     },
                 }),
                 fileFilter: (req, file, cb) => {
-                    const allowedTypes = [
-                        'image/jpeg',
-                        'image/png',
-                        'video/mp4',
-                        'video/mpeg',
+                    const imgType = [
+                        // Rasm (Image) formatlari
+                        'image/jpeg',      // .jpg, .jpeg
+                        'image/png',       // .png
+                        'image/gif',       // .gif
+                        'image/webp',      // .webp
+                        'image/bmp',       // .bmp
+                        'image/svg+xml',   // .svg
+                        'image/tiff',      // .tif, .tiff
+                        'image/x-icon',    // .ico
                     ];
-                    if (!allowedTypes.includes(file.mimetype)) {
+
+
+                    const videoTypes = [
+                        // Video formatlari
+                        // Video formatlari
+                        'video/mp4',         // .mp4
+                        'video/mpeg',        // .mpeg, .mpg
+                        'video/x-msvideo',   // .avi
+                        'video/x-matroska',  // .mkv
+                        'video/webm',        // .webm
+                        'video/3gpp',        // .3gp
+                        'video/3gpp2',       // .3g2
+                        'video/ogg',         // .ogv
+                        'video/quicktime',   // .mov
+                        'video/x-flv',       // .flv
+                        'video/x-ms-wmv'     // .wmv
+
+                    ];
+
+                    if (file.fieldname === 'banner' && !imgType.includes(file.mimetype)) {
                         return cb(
-                            new BadRequestException('Yaroqsiz fayl turi yuklandi!'),
+                            new BadRequestException('Banner uchun yaroqsiz fayl turi yuklandi!'),
                             false,
                         );
                     }
+
+                    if (file.fieldname === 'introVideo' && !videoTypes.includes(file.mimetype)) {
+                        return cb(
+                            new BadRequestException('Intro video uchun yaroqsiz fayl turi yuklandi!'),
+                            false,
+                        );
+                    }
+
                     cb(null, true);
                 },
                 limits: {

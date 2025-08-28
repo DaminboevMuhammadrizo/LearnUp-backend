@@ -4,6 +4,7 @@ import { NestExpressApplication } from '@nestjs/platform-express';
 import { setupSwagger } from './common/config/swagger/swagger';
 import { join } from 'path';
 import { ValidationPipe } from '@nestjs/common';
+import { FileCleanupExceptionFilter } from './core/utils/errFilter';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -15,8 +16,15 @@ async function bootstrap() {
       enableImplicitConversion: true,
     }
   }));
-  app.useStaticAssets(join(process.cwd(), 'uploads/public'), { prefix: '/files/public', });
+  
+  app.enableCors({
+    origin: '*',
+    methods: 'GET,HEAD,PUT,PATCH,POST,DELETE,OPTIONS',
+    credentials: true,
+  });
+  app.useStaticAssets(join(process.cwd(), 'uploads/courses'), { prefix: '/files/public', });
   await setupSwagger(app);
+  app.useGlobalFilters(new FileCleanupExceptionFilter());
   await app.listen(process.env.PORT ?? 3000);
 }
 

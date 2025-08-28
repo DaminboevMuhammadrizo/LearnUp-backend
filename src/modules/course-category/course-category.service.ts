@@ -23,7 +23,7 @@ export class CourseCategoryService {
 
 
     async create (payload: CreateCourseCateforyDto) {
-        if(!await this.prisma.courseCategory.findUnique({where: {name: payload.name}})) {
+        if(await this.prisma.courseCategory.findUnique({where: {name: payload.name}})) {
             throw new ConflictException({success: false, message: 'category alredy exsists !'})
         }
 
@@ -36,7 +36,7 @@ export class CourseCategoryService {
         if(!await this.prisma.courseCategory.findUnique({where: {id: payload.id}})) {
             throw new NotFoundException({success: false, message: 'course-categody not found !'})
         }
-        if(!await this.prisma.courseCategory.findUnique({where: {name: payload.name}})) {
+        if(await this.prisma.courseCategory.findUnique({where: {name: payload.name}})) {
             throw new ConflictException({success: false, message: 'category alredy exsists !'})
         }
 

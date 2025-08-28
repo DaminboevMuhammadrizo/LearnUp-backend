@@ -25,12 +25,12 @@ export class UserService {
         if (query.search) {
             where.fullName = { contains: query.search.trim(), mode: 'insensitive', }
         }
-        return this.prisma.users.findMany({ where, skip, take })
+        return this.prisma.users.findMany({ where, skip, take, include: { mentorProfile: true } })
     }
 
 
     async getSingleMentor(id: number) {
-        return this.prisma.users.findFirst({ where: { id, role: UserRole.MENTOR } })
+        return this.prisma.users.findFirst({ where: { id, role: UserRole.MENTOR }, include: { mentorProfile: true } })
     }
 
 

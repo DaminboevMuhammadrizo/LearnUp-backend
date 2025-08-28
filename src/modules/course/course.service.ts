@@ -2,7 +2,7 @@ import { BadRequestException, ConflictException, Injectable, NotFoundException }
 import { PrismaService } from 'src/Database/prisma.service';
 import { GetQueryDto } from './dto/get-query.dto';
 import { GetAllCourseDto } from './dto/get-all-courses.dto';
-import { Users } from '@prisma/client';
+import { UserRole, Users } from '@prisma/client';
 import { GetMyCourseDto } from './dto/get-mentor.dto';
 import { GetAssignedCoursesDto } from './dto/get-assigned-course.dto';
 import { PaginationDto } from './dto/pagination.dto';
@@ -10,6 +10,7 @@ import { AssignAssistantDto } from './dto/assign-asssistant.dto';
 import { UnassignAssistantDto } from './dto/unsing-assistant.dtpo';
 import { CreateCourseDto } from './dto/create.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
+import { GetTopCourseQueryDto } from './dto/GetTopCourseQueryDto';
 
 @Injectable()
 export class CourseService {
@@ -427,6 +428,51 @@ export class CourseService {
     }
 
 
+    async getTopCourses(cId: string) {
+        if (isNaN(Number(cId))) {
+            throw new BadRequestException({ success: false, message: 'Invalid Id!' });
+        }
+        const categoriy = await this.prisma.courseCategory.findUnique({
+            where: { id: Number(cId) }
+        })
+
+        const whereCondition = categoriy?.name === 'All Courses'
+                ? { published: true }
+                : { published: true, courseCategoryId: Number(cId) };
+
+        const topCourses = await this.prisma.course.findMany({
+            where: whereCondition,
+            take: 4,
+            orderBy: { purchasedCourse: { _count: 'desc' } },
+            include: {
+                CourseCategory: true,
+                MentorProfile: { include: { Users: { select: { fullName: true, image: true } } } },
+                purchasedCourse: true,
+                rating: true,
+            },
+        });
+
+        const courseIds = topCourses.map(c => c.id);
+        const ratings = await this.prisma.rating.groupBy({
+            by: ['courseId'],
+            where: { courseId: { in: courseIds } },
+            _avg: { rate: true },
+        });
+
+        return {
+            success: true,
+            data: topCourses.map(course => {
+                const rating = ratings.find(r => r.courseId === course.id);
+                return {
+                    ...course,
+                    ratingAvg: rating?._avg.rate ?? 0,
+                    ratingCount: course.rating?.length ?? 0,
+                };
+            }),
+        };
+    }
+
+
     async assignAssistant(payload: AssignAssistantDto) {
         const { assistantId, courseId } = payload;
 
@@ -530,6 +576,8 @@ export class CourseService {
         });
 
         if (existing) {
+
+
             throw new ConflictException({
                 success: false,
                 message: 'Course already exists!',
@@ -539,6 +587,7 @@ export class CourseService {
         const mentorProfile = await this.prisma.mentorProfile.findUnique({
             where: { id: payload.mentorProfileId }
         })
+
 
         if (!mentorProfile) {
             throw new NotFoundException({
