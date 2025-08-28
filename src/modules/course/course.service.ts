@@ -450,13 +450,13 @@ export class CourseService {
                 purchasedCourse: true,
                 rating: true,
             },
-        });
+        });   
 
         const courseIds = topCourses.map(c => c.id);
         const ratings = await this.prisma.rating.groupBy({
             by: ['courseId'],
             where: { courseId: { in: courseIds } },
-            _avg: { rate: true },
+            _avg: { rate: true },  
         });
 
         return {
