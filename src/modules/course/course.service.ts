@@ -458,7 +458,7 @@ export class CourseService {
             where: { courseId: { in: courseIds } },
             _avg: { rate: true },  
         });
-
+  
         return {
             success: true,
             data: topCourses.map(course => {
