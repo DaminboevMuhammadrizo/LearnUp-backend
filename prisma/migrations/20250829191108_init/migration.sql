@@ -13,7 +13,7 @@ CREATE TYPE "ExamAnswer" AS ENUM ('variantA', 'variantB', 'variantC', 'variantD'
 -- CreateTable
 CREATE TABLE "Users" (
     "id" SERIAL NOT NULL,
-    "phone" TEXT NOT NULL,
+    "email" TEXT,
     "password" TEXT NOT NULL,
     "role" "UserRole" NOT NULL DEFAULT 'STUDENT',
     "fullName" TEXT NOT NULL,
@@ -242,7 +242,7 @@ CREATE TABLE "QuestionAnswer" (
 );
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Users_phone_key" ON "Users"("phone");
+CREATE UNIQUE INDEX "Users_email_key" ON "Users"("email");
 
 -- CreateIndex
 CREATE UNIQUE INDEX "CourseCategory_name_key" ON "CourseCategory"("name");
@@ -257,7 +257,7 @@ CREATE UNIQUE INDEX "LessonView_lessonId_usersId_key" ON "LessonView"("lessonId"
 ALTER TABLE "MentorProfile" ADD CONSTRAINT "MentorProfile_usersId_fkey" FOREIGN KEY ("usersId") REFERENCES "Users"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Course" ADD CONSTRAINT "Course_courseCategoryId_fkey" FOREIGN KEY ("courseCategoryId") REFERENCES "CourseCategory"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+ALTER TABLE "Course" ADD CONSTRAINT "Course_courseCategoryId_fkey" FOREIGN KEY ("courseCategoryId") REFERENCES "CourseCategory"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "Course" ADD CONSTRAINT "Course_mentorProfileId_fkey" FOREIGN KEY ("mentorProfileId") REFERENCES "MentorProfile"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
