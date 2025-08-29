@@ -1,12 +1,12 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsMobilePhone, IsNumber, IsOptional, IsString, MinLength } from "class-validator"
+import { IsEmail, IsOptional, IsString, MinLength } from "class-validator"
 
 export class UpdateAssistantDto {
 
-    @ApiProperty({example: '+998901234567', required: false})
-    @IsMobilePhone('uz-UZ')
+    @ApiProperty({example: 'm701rizo@gmail.com', required: false})
+    @IsEmail()
     @IsOptional()
-    phone?: string
+    email?: string
 
     @ApiProperty({example: 'John Doe', required: false})
     @IsString()

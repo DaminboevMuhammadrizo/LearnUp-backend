@@ -58,8 +58,8 @@ export class UserController {
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN, UserRole.MENTOR)
     @ApiBearerAuth()
-    @ApiOperation({ summary: 'Telefon raqam orqali foydalanuvchini olish' })
-    @Get('by-phone')
+    @ApiOperation({ summary: 'Email orqali foydalanuvchini olish' })
+    @Get('email')
     getByPhone(@Query() query: QueryByPhoneDto) {
         return this.userService.getByPhone(query);
     }

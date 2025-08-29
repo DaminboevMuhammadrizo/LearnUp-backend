@@ -7,8 +7,6 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-
 enum UserRole {
   ADMIN
   MENTOR
@@ -37,7 +35,7 @@ enum ExamAnswer {
 
 model Users {
   id                 Int                  @id @default(autoincrement())
-  phone              String               @unique
+  email              String?              @unique
   password           String
   role               UserRole             @default(STUDENT)
   fullName           String
@@ -173,6 +171,7 @@ model LastActivity {
   lessonId       Int
   url            String?
   updatedAt      DateTime      @updatedAt
+
   @@unique([usersId, lessonId])
 }
 

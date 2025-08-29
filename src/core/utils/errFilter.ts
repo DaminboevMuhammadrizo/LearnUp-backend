@@ -9,8 +9,6 @@ export class FileCleanupExceptionFilter implements ExceptionFilter {
         const request = ctx.getRequest<Request>();
         const response = ctx.getResponse<Response>();
 
-        console.log(exception)
-
         if (request.files) {
 
             const files = request.files as

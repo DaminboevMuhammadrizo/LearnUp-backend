@@ -1,4 +1,4 @@
-import { BadRequestException, ConflictException, Injectable, NotFoundException, RequestTimeoutException, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, ConflictException, Injectable, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { JwtService } from '@nestjs/jwt';
 import { PrismaService } from 'src/Database/prisma.service';
 import { VerificationsService } from '../verifications/verifications.service';
@@ -28,19 +28,17 @@ export class AuthService {
     }
 
     async register(payload: RegisterDto) {
-        // Foydalanuvchi mavjudligini tekshirish
-        const existingUser = await this.prisma.users.findUnique({ 
-            where: { phone: payload.phone } 
+        const existingUser = await this.prisma.users.findUnique({
+            where: { email: payload.email } 
         });
         
         if (existingUser) {
-            throw new ConflictException('Phone already exists!')
+            throw new ConflictException('Email already exists!')
         }
 
-        // OTP tekshirish
-        const isOtpValid = await this.verifyService.ChekConfirmOtp({ 
+        const isOtpValid = await this.verifyService.checkConfirmOtp({ 
             type: VerificationTypes.REGISTER, 
-            phone: payload.phone, 
+            email: payload.email, 
             otp: String(payload.otp) 
         });
         
@@ -48,16 +46,13 @@ export class AuthService {
             throw new BadRequestException('Invalid or expired OTP')
         }
 
-        // Parolni hash qilish
         const hashedPassword = await hashPassword(payload.password);
 
-        // Foydalanuvchini yaratish - faqat kerakli maydonlarni yuborish
         const user = await this.prisma.users.create({
             data: {
-                phone: payload.phone,
+                email: payload.email,
                 fullName: payload.fullName,
                 password: hashedPassword,
-                // otp maydonini qo'shmaslik - Users modelida yo'q
             }
         });
 
@@ -66,30 +61,30 @@ export class AuthService {
 
     async login(payload: LoginDto) {
         const user = await this.prisma.users.findUnique({ 
-            where: { phone: payload.phone } 
+            where: { email: payload.phone } 
         });
         
         if (!user) {
-            throw new NotFoundException('Invalid phone or password!')
+            throw new NotFoundException('Invalid email or password!')
         }
 
         const isPasswordValid = await compirePassword(payload.password, user.password);
         if (!isPasswordValid) {
-            throw new NotFoundException('Invalid phone or password!')
+            throw new NotFoundException('Invalid email or password!')
         }
         
         return this.generateToken({ id: user.id, role: user.role })
     }
 
     async resetPassword(payload: ResetPasswordDto) {
-        await this.verifyService.ChekConfirmOtp({ 
+        await this.verifyService.checkConfirmOtp({ 
             type: VerificationTypes.RESET_PASSWORD, 
             otp: String(payload.otp), 
-            phone: payload.phone 
+            email: payload.email 
         });
 
         await this.prisma.users.update({ 
-            where: { phone: payload.phone }, 
+            where: { email: payload.email }, 
             data: { password: await hashPassword(payload.password) }
         });
 

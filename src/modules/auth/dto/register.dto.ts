@@ -1,12 +1,11 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsMobilePhone, IsNotEmpty, IsNumber, IsString } from "class-validator";
-import { UserRole } from "src/common/types/userRole";
+import { IsEmail, IsNotEmpty, IsNumber, IsString } from "class-validator";
 
 export class RegisterDto {
 
-    @ApiProperty({example: '+998901234567'})
-    @IsMobilePhone('uz-UZ')
-    phone: string
+    @ApiProperty({example: 'm701rizo@gmail.com'})
+    @IsEmail()
+    email: string
 
     @ApiProperty({example: 'Muhammadrizo'})
     @IsString()
@@ -21,8 +20,4 @@ export class RegisterDto {
     @ApiProperty({example: 123456})
     @IsNumber()
     otp: number
-
-    @ApiProperty({example: 'img.png'})
-    @IsString()
-    img?: string
 }

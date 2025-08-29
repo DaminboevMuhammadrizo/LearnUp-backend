@@ -403,7 +403,7 @@ export class CourseService {
                         select: {
                             id: true,
                             fullName: true,
-                            phone: true,
+                            email: true,
                             image: true,
                         },
                     },

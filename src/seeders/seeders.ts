@@ -14,13 +14,13 @@ export class SeederService implements OnModuleInit {
 
   async seedUsers() {
     const users = {
-        fullName: 'Abduhoshim_Sultonqulov',
-        phone: '+998975661099',
-        password: '12345678',
+        fullName: 'Muhammadrizo_Daminboev',
+        email: 'm701rizo@gmail.com',
+        password: '10101010',
         role: UserRole.ADMIN,
       }
 
-      if(await this.prisma.users.findUnique({where: { phone: users.phone }})) {
+      if(await this.prisma.users.findUnique({where: { email: users.email }})) {
         this.logger.log('user alredy exsists !')
         return
       }
@@ -29,13 +29,13 @@ export class SeederService implements OnModuleInit {
 
       await this.prisma.users.create({
         data: {
-          phone: users.phone,
+          email: users.email,
           password: hashed,
           role: users.role,
           fullName: users.fullName,
         },
       });
 
-      this.logger.log(`${users.role} created (${users.phone})`);
+      this.logger.log(`${users.role} created (${users.email})`);
   }
 }

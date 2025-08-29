@@ -6,7 +6,7 @@ import { RefreshTokenDto } from './dto/refresh-token';
 import { ResetPasswordDto } from './dto/reset-password.dto';
 import { ApiTags, ApiOperation } from '@nestjs/swagger';
 
-@ApiTags('Auth') // Swagger grouping
+@ApiTags('Auth')
 @Controller('auth')
 export class AuthController {
     constructor(private readonly authService: AuthService) {}

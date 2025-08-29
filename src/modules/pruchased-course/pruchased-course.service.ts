@@ -122,7 +122,7 @@ export class PruchasedCourseService {
     async createByPhone(payload: CreatePurchaseCourseByPhone) {
         const user = await this.prisma.users.findUnique({
             where: {
-                phone: payload.phone
+                email: payload.email
             }
         })
         if(!user) {

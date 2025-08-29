@@ -1,19 +1,18 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsMobilePhone, IsNotEmpty, IsNumber, IsString, Matches, MinLength } from "class-validator";
+import { IsEmail, IsMobilePhone, IsNotEmpty, IsNumber, IsString, Matches, MinLength } from "class-validator";
 
 export class CreateMentorDto {
 
-    @ApiProperty({example: '+998901234567'})
-    @IsNotEmpty()
-    @IsMobilePhone('uz-UZ')
-    phone: string
+    @ApiProperty({example: 'm701rizo@gmail.com'})
+    @IsEmail()
+    email: string
 
     @ApiProperty({example: 'John Doe'})
     @IsNotEmpty()
     @IsString()
     fullName: string
 
-    @ApiProperty({example: 'password123'})
+    @ApiProperty({example: '12345678'})
     @IsNotEmpty()
     @IsString()
     @MinLength(6)

@@ -27,6 +27,7 @@ import { SeederService } from './seeders/seeders';
 @Module({
   imports: [ConfigModule.forRoot({
       isGlobal: true,
+      envFilePath: '.env'
     }), 
     AuthModule,
     UserModule,

@@ -161,9 +161,9 @@ export class ProfileService {
 
 
     async updatePhone(userId: number, payload: UpdatePhoneDto) {
-        const isVerified = await this.verifyService.ChekConfirmOtp({
-            type: VerificationTypes.RESET_PHONE,
-            phone: payload.phone,
+        const isVerified = await this.verifyService.checkConfirmOtp({
+            type: VerificationTypes.RESET_EMAIL,
+            email: payload.email,
             otp: String(payload.otp)
         });
 
@@ -184,19 +184,19 @@ export class ProfileService {
         }
 
         const phoneExists = await this.prisma.users.findUnique({
-            where: { phone: payload.phone }
+            where: { email: payload.email }
         });
 
         if (phoneExists && phoneExists.id !== userId) {
             throw new BadRequestException({
                 success: false,
-                message: 'This phone number is already in use'
+                message: 'This email number is already in use'
             });
         }
 
         await this.prisma.users.update({
             where: { id: userId },
-            data: { phone: payload.phone }
+            data: { email: payload.email }
         });
 
         return {
@@ -204,11 +204,6 @@ export class ProfileService {
             message: 'Phone success updated !'
         };
     }
-
-
-
-
-
 
 
 }

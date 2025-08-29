@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsInt, IsMobilePhone, IsNotEmpty, IsPositive } from "class-validator"
+import { IsEmail, IsInt, IsMobilePhone, IsNotEmpty, IsPositive } from "class-validator"
 
 export class CreatePurchaseCourseByPhone {
 
@@ -8,8 +8,7 @@ export class CreatePurchaseCourseByPhone {
     @IsPositive()
     courseId: number
 
-    @ApiProperty({example: '+998901234567'})
-    @IsNotEmpty()
-    @IsMobilePhone('uz-UZ')
-    phone: string
+    @ApiProperty({example: 'm701rizo@gmail.com'})
+    @IsEmail()
+    email: string
 }

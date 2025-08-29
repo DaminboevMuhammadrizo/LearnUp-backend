@@ -51,13 +51,13 @@ export class UserService {
 
 
     async getByPhone(query: QueryByPhoneDto) {
-        return this.prisma.users.findUnique({ where: { phone: query.phone } })
+        return this.prisma.users.findUnique({ where: { email: query.email } })
     }
 
 
     async createAdmin(payload: CreateAdminDto) {
-        if (await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
-            throw new ConflictException('Phone alredy exsists !')
+        if (await this.prisma.users.findUnique({ where: { email: payload.email } })) {
+            throw new ConflictException('Email alredy exsists !')
         }
         payload.password = await hashPassword(payload.password)
         await this.prisma.users.create({ data: { ...payload, role: UserRole.ADMIN } })
@@ -70,13 +70,13 @@ export class UserService {
 
 
     async createMentor(payload: CreateMentorDto) {
-        if (await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
-            throw new ConflictException('Phone alredy exsists !')
+        if (await this.prisma.users.findUnique({ where: { email: payload.email } })) {
+            throw new ConflictException('Email alredy exsists !')
         }
         payload.password = await hashPassword(payload.password)
         const user = await this.prisma.users.create({
             data: {
-                phone: payload.phone,
+                email: payload.email,
                 fullName: payload.fullName,
                 password: payload.password,
                 role: UserRole.MENTOR,
@@ -100,8 +100,8 @@ export class UserService {
 
 
     async createAssistant(payload: CreateAssistantDto) {
-        if (await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
-            throw new ConflictException('Phone alredy exsists !')
+        if (await this.prisma.users.findUnique({ where: { email: payload.email } })) {
+            throw new ConflictException('Email alredy exsists !')
         }
         if(!await this.prisma.course.findUnique({ where: {id: payload.courseId}})) {
             throw new NotFoundException({
@@ -129,8 +129,8 @@ export class UserService {
         if (!await this.prisma.mentorProfile.findUnique({ where: { id } })) {
             throw new NotFoundException({ success: false, message: 'mentor not found !' })
         }
-        if (payload.phone && await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
-            throw new ConflictException({ success: false, message: 'phone alredy exsists ' })
+        if (payload.email && await this.prisma.users.findUnique({ where: { email: payload.email } })) {
+            throw new ConflictException({ success: false, message: 'email alredy exsists ' })
         }
 
         await this.prisma.mentorProfile.update({ where: { id }, data: payload })
@@ -142,8 +142,8 @@ export class UserService {
         if (!await this.prisma.users.findUnique({ where: { id } })) {
             throw new NotFoundException({ success: false, message: 'user not found !' })
         }
-        if (await this.prisma.users.findUnique({ where: { phone: payload.phone } })) {
-            throw new ConflictException({ success: false, message: 'Phone alredy exsists !' })
+        if (await this.prisma.users.findUnique({ where: { email: payload.email } })) {
+            throw new ConflictException({ success: false, message: 'Email alredy exsists !' })
         }
         return { success: true, message: 'assistant success updated !' }
     }
@@ -151,7 +151,7 @@ export class UserService {
 
     async delete(id: number) {
         if (!await this.prisma.users.findUnique({ where: { id } })) {
-            throw new NotFoundException('user not found !')
+            throw new NotFoundException({message: 'user not found !'})
         }
 
         await this.prisma.users.delete({ where: { id } })
