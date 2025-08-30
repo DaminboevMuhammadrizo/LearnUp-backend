@@ -21,7 +21,17 @@ export class CourseService {
 
         const take = query.limit ?? 10;
         const skip = query.offset ? (query.offset - 1) * take : 0;
-        const where: any = {published: true};
+        const where: any = { published: true };
+
+
+        const categoriy = await this.prisma.courseCategory.findUnique({
+            where: { id: query.courseCategoryId ?? 1 }
+        })
+
+        if (categoriy?.name !== 'All Courses') {
+            where.courseCategoryId = query.courseCategoryId ?? 1;
+        }
+
 
         if (query.search) {
             where.name = {
@@ -430,7 +440,7 @@ export class CourseService {
 
 
     async getTopCourses(query: TopQueryDto) {
-        
+
         const categoriy = await this.prisma.courseCategory.findUnique({
             where: { id: query.categoryId ?? 1 }
         })
@@ -438,7 +448,7 @@ export class CourseService {
         const where = categoriy?.name === 'All Courses' ? { published: true } : { published: true, courseCategoryId: query.categoryId };
 
         const topCourses = await this.prisma.course.findMany({
-            where, 
+            where,
             take: 4,
             orderBy: { purchasedCourse: { _count: 'desc' } },
             include: {
@@ -447,15 +457,15 @@ export class CourseService {
                 purchasedCourse: true,
                 rating: true,
             },
-        });   
+        });
 
         const courseIds = topCourses.map(c => c.id);
         const ratings = await this.prisma.rating.groupBy({
             by: ['courseId'],
             where: { courseId: { in: courseIds } },
-            _avg: { rate: true },  
+            _avg: { rate: true },
         });
-  
+
         return {
             success: true,
             data: topCourses.map(course => {

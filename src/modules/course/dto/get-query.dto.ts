@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger";
-import { IsEnum, IsNumber, IsOptional, IsString } from "class-validator";
+import { IsEnum, IsInt, IsNumber, IsOptional, IsString } from "class-validator";
 import { Level } from "src/common/types/level";
 
 export class GetQueryDto {
@@ -33,4 +33,9 @@ export class GetQueryDto {
     @IsOptional()
     @IsNumber()
     price_max: number
+
+    @ApiProperty({example: 2, required: false})
+    @IsOptional()
+    @IsInt()
+    courseCategoryId: number
 }
