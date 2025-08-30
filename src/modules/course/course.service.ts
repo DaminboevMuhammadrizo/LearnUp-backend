@@ -429,33 +429,56 @@ export class CourseService {
     }
 
     async getTopCourses(query: TopQueryDto) {
-        const { categoryId } = query;
+        const categoryId = query.categoryId ?? 1;
 
-        const courseWhereFilter: any = categoryId ? { courseCategoryId: categoryId } : {};
+        const category = await this.prisma.courseCategory.findUnique({
+            where: { id: categoryId },
+        });
+
+        const isAllCourses = !category || category.name === 'All Courses';
+
+        const where = isAllCourses
+            ? { published: true }
+            : { published: true, courseCategoryId: categoryId };
 
         const topCourses = await this.prisma.course.findMany({
-            where: {
-                ...courseWhereFilter,
-                published: true,
-            },
+            where,
+            orderBy: { purchasedCourse: { _count: 'desc' } },
+            take: 4,
             include: {
-                lastActivity: true,
                 CourseCategory: true,
+                MentorProfile: {
+                    include: {
+                        Users: {
+                            select: { fullName: true, image: true },
+                        },
+                    },
+                },
+                purchasedCourse: true,
+                rating: true,
             },
         });
 
-        // Ko‘rilganlik soniga qarab tartiblash
-        const sortedCourses = topCourses
-            .map(course => ({
-                ...course,
-                views: course.lastActivity.length,
-            }))
-            .sort((a, b) => b.views - a.views)
-            .slice(0, 4); // faqat TOP 4
+        const courseIds = topCourses.map(c => c.id);
 
-        return sortedCourses;
+        const ratings = await this.prisma.rating.groupBy({
+            by: ['courseId'],
+            where: { courseId: { in: courseIds } },
+            _avg: { rate: true },
+        });
+
+        return {
+            success: true,
+            data: topCourses.map(course => {
+                const rating = ratings.find(r => r.courseId === course.id);
+                return {
+                    ...course,
+                    ratingAvg: rating?._avg.rate ?? 0,
+                    ratingCount: course.rating?.length ?? 0,
+                };
+            }),
+        };
     }
-
 
     async assignAssistant(payload: AssignAssistantDto) {
         const { assistantId, courseId } = payload;
