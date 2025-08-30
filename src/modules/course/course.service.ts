@@ -428,45 +428,34 @@ export class CourseService {
         };
     }
 
+
     async getTopCourses(query: TopQueryDto) {
-        const categoryId = query.categoryId ?? 1;
+        
+        const categoriy = await this.prisma.courseCategory.findUnique({
+            where: { id: query.categoryId ?? 1 }
+        })
 
-        const category = await this.prisma.courseCategory.findUnique({
-            where: { id: categoryId },
-        });
-
-        const isAllCourses = !category || category.name === 'All Courses';
-
-        const where = isAllCourses
-            ? { published: true }
-            : { published: true, courseCategoryId: categoryId };
+        const where = categoriy?.name === 'All Courses' ? { published: true } : { published: true, courseCategoryId: query.categoryId };
 
         const topCourses = await this.prisma.course.findMany({
-            where,
-            orderBy: { purchasedCourse: { _count: 'desc' } },
+            where, 
             take: 4,
+            orderBy: { purchasedCourse: { _count: 'desc' } },
             include: {
                 CourseCategory: true,
-                MentorProfile: {
-                    include: {
-                        Users: {
-                            select: { fullName: true, image: true },
-                        },
-                    },
-                },
+                MentorProfile: { include: { Users: { select: { fullName: true, image: true } } } },
                 purchasedCourse: true,
                 rating: true,
             },
-        });
+        });   
 
         const courseIds = topCourses.map(c => c.id);
-
         const ratings = await this.prisma.rating.groupBy({
             by: ['courseId'],
             where: { courseId: { in: courseIds } },
-            _avg: { rate: true },
+            _avg: { rate: true },  
         });
-
+  
         return {
             success: true,
             data: topCourses.map(course => {
@@ -479,6 +468,7 @@ export class CourseService {
             }),
         };
     }
+
 
     async assignAssistant(payload: AssignAssistantDto) {
         const { assistantId, courseId } = payload;
