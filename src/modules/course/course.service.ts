@@ -428,45 +428,32 @@ export class CourseService {
         };
     }
 
-
     async getTopCourses(query: TopQueryDto) {
-        
-        const categoriy = await this.prisma.courseCategory.findUnique({
-            where: { id: query.categoryId ?? 1 }
-        })
+        const { categoryId } = query;
 
-        const where = categoriy?.name === 'All Courses' ? { published: true } : { published: true, courseCategoryId: query.categoryId };
+        const courseWhereFilter: any = categoryId ? { courseCategoryId: categoryId } : {};
 
         const topCourses = await this.prisma.course.findMany({
-            where, 
-            take: 4,
-            orderBy: { purchasedCourse: { _count: 'desc' } },
-            include: {
-                CourseCategory: true,
-                MentorProfile: { include: { Users: { select: { fullName: true, image: true } } } },
-                purchasedCourse: true,
-                rating: true,
+            where: {
+                ...courseWhereFilter,
+                published: true,
             },
-        });   
-
-        const courseIds = topCourses.map(c => c.id);
-        const ratings = await this.prisma.rating.groupBy({
-            by: ['courseId'],
-            where: { courseId: { in: courseIds } },
-            _avg: { rate: true },  
+            include: {
+                lastActivity: true,
+                CourseCategory: true,
+            },
         });
-  
-        return {
-            success: true,
-            data: topCourses.map(course => {
-                const rating = ratings.find(r => r.courseId === course.id);
-                return {
-                    ...course,
-                    ratingAvg: rating?._avg.rate ?? 0,
-                    ratingCount: course.rating?.length ?? 0,
-                };
-            }),
-        };
+
+        // Ko‘rilganlik soniga qarab tartiblash
+        const sortedCourses = topCourses
+            .map(course => ({
+                ...course,
+                views: course.lastActivity.length,
+            }))
+            .sort((a, b) => b.views - a.views)
+            .slice(0, 4); // faqat TOP 4
+
+        return sortedCourses;
     }
 
 
