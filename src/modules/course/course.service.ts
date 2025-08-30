@@ -21,7 +21,7 @@ export class CourseService {
 
         const take = query.limit ?? 10;
         const skip = query.offset ? (query.offset - 1) * take : 0;
-        const where: any = {};
+        const where: any = {published: true};
 
         if (query.search) {
             where.name = {
@@ -51,6 +51,10 @@ export class CourseService {
                 take,
                 orderBy: {
                     createdAt: 'desc'
+                },
+                select: {
+                    published: true,
+
                 }
             }),
             this.prisma.course.count({ where })

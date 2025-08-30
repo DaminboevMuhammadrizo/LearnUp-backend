@@ -1,5 +1,5 @@
 import { ApiProperty } from "@nestjs/swagger"
-import { IsMobilePhone, IsNotEmpty, IsString, MaxLength } from "class-validator"
+import { IsEmail, IsMobilePhone, IsNotEmpty, IsString, MaxLength } from "class-validator"
 
 export class ContactDto {
 
@@ -8,9 +8,9 @@ export class ContactDto {
     @IsString()
     fullName: string
 
-    @ApiProperty({example: '+998901234567'})
-    @IsMobilePhone('uz-UZ')
-    phone: string
+    @ApiProperty({example: 'm701rizo@gmail.com'})
+    @IsEmail()
+    email: string
 
     @ApiProperty({example: '@johndoe'})    
     @IsString()

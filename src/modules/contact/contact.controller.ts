@@ -9,8 +9,6 @@ import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
 export class ContactController {
     constructor(private readonly contactService: ContactService) {}
 
-    @UseGuards(AuthGuard)
-    @ApiBearerAuth()
     @ApiOperation({ summary: 'Contact form maʼlumotlarini yuborish' })
     @Post('contact')
     contact(@Body() payload: ContactDto) {
