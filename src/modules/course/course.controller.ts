@@ -19,6 +19,7 @@ import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { RolesGuard } from 'src/core/guards/roles.guard';
 import { Roles } from 'src/core/decorators/roles';
 import { GetTopCourseQueryDto } from './dto/GetTopCourseQueryDto';
+import { TopQueryDto } from './dto/top.query.dto';
 
 @ApiTags('Courses')
 @Controller('course')
@@ -109,9 +110,9 @@ export class CourseController {
     }
 
     @ApiOperation({ summary: 'Eng kop korilgan 4 ta kurs' })
-    @Get('top/:categoryId')
-    getTopCourses(@Param('categoryId') categoryId: string) {
-        return this.courseService.getTopCourses(categoryId);
+    @Get('top')
+    getTopCourses(@Query() query: TopQueryDto) {
+        return this.courseService.getTopCourses(query);
     }
 
     @UseGuards(AuthGuard, RolesGuard)

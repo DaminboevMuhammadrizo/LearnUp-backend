@@ -11,6 +11,7 @@ import { UnassignAssistantDto } from './dto/unsing-assistant.dtpo';
 import { CreateCourseDto } from './dto/create.dto';
 import { UpdateMentorDto } from './dto/update-mentor.dto';
 import { GetTopCourseQueryDto } from './dto/GetTopCourseQueryDto';
+import { TopQueryDto } from './dto/top.query.dto';
 
 @Injectable()
 export class CourseService {
@@ -428,20 +429,16 @@ export class CourseService {
     }
 
 
-    async getTopCourses(cId: string) {
-        if (isNaN(Number(cId))) {
-            throw new BadRequestException({ success: false, message: 'Invalid Id!' });
-        }
+    async getTopCourses(query: TopQueryDto) {
+        
         const categoriy = await this.prisma.courseCategory.findUnique({
-            where: { id: Number(cId) }
+            where: { id: query.categoryId ?? 1 }
         })
 
-        const whereCondition = categoriy?.name === 'All Courses'
-                ? { published: true }
-                : { published: true, courseCategoryId: Number(cId) };
+        const where = categoriy?.name === 'All Courses' ? { published: true } : { published: true, courseCategoryId: query.categoryId };
 
         const topCourses = await this.prisma.course.findMany({
-            where: whereCondition,
+            where, 
             take: 4,
             orderBy: { purchasedCourse: { _count: 'desc' } },
             include: {

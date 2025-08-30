@@ -14,7 +14,7 @@ import { hashPassword } from 'src/common/config/bcrypt/hash';
 
 @Injectable()
 export class UserService {
-    constructor(private readonly prisma: PrismaService) {}
+    constructor(private readonly prisma: PrismaService) { }
 
 
     async getAllMentors(query: QueryMentorsDto) {
@@ -23,10 +23,41 @@ export class UserService {
         const skip = query.offset ? (query.offset - 1) * take : 0
 
         if (query.search) {
-            where.fullName = { contains: query.search.trim(), mode: 'insensitive', }
+            where.fullName = { contains: query.search.trim(), mode: 'insensitive' }
         }
-        return this.prisma.users.findMany({ where, skip, take, include: { mentorProfile: true } })
+
+        const data = await this.prisma.users.findMany({
+            where,
+            skip,
+            take,
+            select: {
+                id: true,
+                email: true,
+                role: true,
+                fullName: true,
+                image: true,
+                password: false,
+                createdAt: false,
+                mentorProfile: {
+                    select: {
+                        id: true,
+                        about: true,
+                        job: true,
+                        experience: true,
+                        telegram: true,
+                        instagram: true,
+                        linkedin: true,
+                        facebook: true,
+                        github: true,
+                        usersId: true
+                    }
+                }
+            }
+        })
+
+        return data
     }
+
 
 
     async getSingleMentor(id: number) {
@@ -74,7 +105,7 @@ export class UserService {
             throw new ConflictException('Email alredy exsists !')
         }
         payload.password = await hashPassword(payload.password)
-        const user = await this.prisma.users.create({
+        await this.prisma.users.create({
             data: {
                 email: payload.email,
                 fullName: payload.fullName,
@@ -103,7 +134,7 @@ export class UserService {
         if (await this.prisma.users.findUnique({ where: { email: payload.email } })) {
             throw new ConflictException('Email alredy exsists !')
         }
-        if(!await this.prisma.course.findUnique({ where: {id: payload.courseId}})) {
+        if (!await this.prisma.course.findUnique({ where: { id: payload.courseId } })) {
             throw new NotFoundException({
                 success: false,
                 message: 'course not found !'
@@ -151,7 +182,7 @@ export class UserService {
 
     async delete(id: number) {
         if (!await this.prisma.users.findUnique({ where: { id } })) {
-            throw new NotFoundException({message: 'user not found !'})
+            throw new NotFoundException({ message: 'user not found !' })
         }
 
         await this.prisma.users.delete({ where: { id } })
