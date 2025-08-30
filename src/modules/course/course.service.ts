@@ -51,10 +51,6 @@ export class CourseService {
                 take,
                 orderBy: {
                     createdAt: 'desc'
-                },
-                select: {
-                    published: true,
-
                 }
             }),
             this.prisma.course.count({ where })
