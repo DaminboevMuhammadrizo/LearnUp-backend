@@ -4,12 +4,18 @@ import { ContactDto } from './dto/contact-dto';
 import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { GetAllContactDto } from './dto/get-all-contact.dto';
+import { RolesGuard } from 'src/core/guards/roles.guard';
+import { Roles } from 'src/core/decorators/roles';
+import { UserRole } from 'src/common/types/userRole';
 
 @ApiTags('Contact')
 @Controller('contact')
 export class ContactController {
     constructor(private readonly contactService: ContactService) { }
 
+
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
     @ApiOperation({summary: 'Hamma contactlarni olish (Admin)'})
     @Get('all')
     getAll(@Query() query: GetAllContactDto) {
@@ -17,6 +23,8 @@ export class ContactController {
     }
 
 
+    @UseGuards(AuthGuard, RolesGuard)
+    @Roles(UserRole.ADMIN)
     @ApiOperation({summary: 'Bita contactni olish (Admin)'})
     @Get('one/:id')
     getOne(@Param('id') id: string) {

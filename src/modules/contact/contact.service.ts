@@ -46,7 +46,7 @@ export class ContactService {
         }
 
         if (query.word) {
-            where.word = {
+            where.message = {
                 contains: query.word,
                 mode: 'insensitive', // optional: katta-kichik harf farqlanmaydi
             }
@@ -64,6 +64,8 @@ export class ContactService {
 
         return data
     }
+
+
 
     async getOne(id: string) {
         if (isNaN(Number(id))) {
