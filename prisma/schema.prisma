@@ -271,3 +271,11 @@ model QuestionAnswer {
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt
 }
+
+model contact {
+  id       Int    @id @default(autoincrement())
+  fullName String
+  email    String
+  telegram String
+  message  String
+}
