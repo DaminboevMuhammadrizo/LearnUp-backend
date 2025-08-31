@@ -1,7 +1,7 @@
-import { Body, Controller, Get, Param, Post, UseGuards } from '@nestjs/common';
+import { Body, Controller, Get, Param, Post, Query, UseGuards } from '@nestjs/common';
 import { ContactService } from './contact.service';
 import { ContactDto } from './dto/contact-dto';
-import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { ApiTags, ApiOperation, ApiBearerAuth, ApiQuery } from '@nestjs/swagger';
 import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
 import { GetAllContactDto } from './dto/get-all-contact.dto';
 
@@ -12,14 +12,14 @@ export class ContactController {
 
     @ApiOperation({summary: 'Hamma contactlarni olish (Admin)'})
     @Get('all')
-    getAll(@Body() query: GetAllContactDto) {
+    getAll(@Query() query: GetAllContactDto) {
         return this.contactService.getAll(query)
     }
 
 
     @ApiOperation({summary: 'Bita contactni olish (Admin)'})
     @Get('one/:id')
-    getOne(@Param() id: string) {
+    getOne(@Param('id') id: string) {
         return this.contactService.getOne(id)
     }
 
