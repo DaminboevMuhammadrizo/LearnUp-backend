@@ -16,6 +16,7 @@ export class ContactController {
 
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
+    @ApiBearerAuth()
     @ApiOperation({summary: 'Hamma contactlarni olish (Admin)'})
     @Get('all')
     getAll(@Query() query: GetAllContactDto) {
@@ -25,6 +26,7 @@ export class ContactController {
 
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN)
+    @ApiBearerAuth()
     @ApiOperation({summary: 'Bita contactni olish (Admin)'})
     @Get('one/:id')
     getOne(@Param('id') id: string) {
