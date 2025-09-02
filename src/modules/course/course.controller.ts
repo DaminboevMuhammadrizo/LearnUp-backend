@@ -256,7 +256,7 @@ export class CourseController {
     async updateMentor(@Body() payload: UpdateCourseMentorDto) {
         return this.courseService.updateMentor(payload);
     }
-
+ 
 
     @UseGuards(AuthGuard, RolesGuard)
     @Roles(UserRole.ADMIN, UserRole.MENTOR)
