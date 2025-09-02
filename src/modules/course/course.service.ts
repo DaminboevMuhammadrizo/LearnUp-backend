@@ -9,7 +9,7 @@ import { PaginationDto } from './dto/pagination.dto';
 import { AssignAssistantDto } from './dto/assign-asssistant.dto';
 import { UnassignAssistantDto } from './dto/unsing-assistant.dtpo';
 import { CreateCourseDto } from './dto/create.dto';
-import { UpdateMentorDto } from './dto/update-mentor.dto';
+import { UpdateCourseMentorDto } from './dto/update-mentor.dto';
 import { GetTopCourseQueryDto } from './dto/GetTopCourseQueryDto';
 import { TopQueryDto } from './dto/top.query.dto';
 
@@ -702,7 +702,7 @@ export class CourseService {
     }
 
 
-    async updateMentor(dto: UpdateMentorDto) {
+    async updateMentor(dto: UpdateCourseMentorDto) {
         const course = await this.prisma.course.findUnique({
             where: {
                 id: dto.courseId

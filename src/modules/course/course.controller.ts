@@ -12,7 +12,7 @@ import { diskStorage } from 'multer';
 import { extname } from 'path';
 import { v4 as uuidv4 } from 'uuid';
 import { CreateCourseDto } from './dto/create.dto';
-import { UpdateMentorDto } from './dto/update-mentor.dto';
+import { UpdateCourseMentorDto } from './dto/update-mentor.dto';
 import { ApiBearerAuth, ApiBody, ApiConsumes, ApiOperation, ApiTags } from '@nestjs/swagger';
 import { UserRole } from 'src/common/types/userRole';
 import { AuthGuard } from 'src/core/guards/jwt-auth.guard';
@@ -253,7 +253,7 @@ export class CourseController {
     @ApiBearerAuth()
     @ApiOperation({ summary: 'Kursga mentorni yangilash' })
     @Put('update-mentor')
-    async updateMentor(@Body() payload: UpdateMentorDto) {
+    async updateMentor(@Body() payload: UpdateCourseMentorDto) {
         return this.courseService.updateMentor(payload);
     }
 
