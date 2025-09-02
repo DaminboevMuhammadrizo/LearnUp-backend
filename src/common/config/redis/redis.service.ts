@@ -6,7 +6,7 @@ import Redis from 'ioredis';
 export class RedisService implements OnModuleInit{
     private client: Redis
     onModuleInit() {
-        this.client = new Redis()
+        this.client = new Redis({host: '127.0.0.1', port: 1070 })
     }
 
     async get (key: string) {
