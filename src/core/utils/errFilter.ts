@@ -86,11 +86,8 @@ export class FileCleanupExceptionFilter implements ExceptionFilter {
             })()
             : 'Internal server error';
 
+            console.log(exception)
 
-
-        response.status(status).json({
-            success: false,
-            message,
-        });
+        response.status(status).json(exception);
     }
 }
