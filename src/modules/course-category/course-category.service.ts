@@ -32,7 +32,7 @@ export class CourseCategoryService {
     }
  
 
-    async update (payload: UpdateCourseCateforyDto) {
+    async update (payload: UpdateCourseCateforyDto) { 
         if(!await this.prisma.courseCategory.findUnique({where: {id: payload.id}})) {
             throw new NotFoundException({success: false, message: 'course-categody not found !'})
         }
