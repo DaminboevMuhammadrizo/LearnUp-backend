@@ -16,7 +16,7 @@ export class CourseCategoryService {
         return this.prisma.courseCategory.findMany({take, skip})
     }
 
-
+ 
     async getOne (id: number) {
         return this.prisma.courseCategory.findUnique({where: {id}})
     }
