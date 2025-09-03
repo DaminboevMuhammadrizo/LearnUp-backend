@@ -30,7 +30,7 @@ export class CourseCategoryService {
         await this.prisma.courseCategory.create({data: payload})
         return {success: true, message: 'course-category success created !'}
     }
- 
+
 
     async update (payload: UpdateCourseCateforyDto) { 
         if(!await this.prisma.courseCategory.findUnique({where: {id: payload.id}})) {
