@@ -14,9 +14,9 @@ export class ContactController {
     constructor(private readonly contactService: ContactService) { }
 
 
-    @UseGuards(AuthGuard, RolesGuard)
-    @Roles(UserRole.ADMIN)
-    @ApiBearerAuth()
+    // @UseGuards(AuthGuard, RolesGuard)
+    // @Roles(UserRole.ADMIN)
+    // @ApiBearerAuth()
     @ApiOperation({summary: 'Hamma contactlarni olish (Admin)'})
     @Get('all')
     getAll(@Query() query: GetAllContactDto) {
