@@ -70,10 +70,12 @@ model MentorProfile {
 }
 
 model CourseCategory {
-  id        Int      @id @default(autoincrement())
-  name      String   @unique
-  createdAt DateTime @default(now())
-  course    Course[]
+  id              Int           @id @default(autoincrement())
+  name            String        @unique
+  createdAt       DateTime      @default(now())
+  course          Course[]
+  CategoryTypes   CategoryTypes @relation(fields: [categoryTypesId], references: [id], onDelete: Cascade)
+  categoryTypesId Int
 }
 
 model Course {
@@ -278,4 +280,10 @@ model contact {
   email    String
   telegram String
   message  String
+}
+
+model CategoryTypes {
+  id             Int              @id @default(autoincrement())
+  name           String           @unique
+  courseCategory CourseCategory[]
 }
